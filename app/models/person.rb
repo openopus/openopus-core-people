@@ -46,30 +46,30 @@ class Person < ApplicationRecord
   end
 
   def email=(address)
-    e = self.emails.where(address: address.downcase.strip).first_or_initialize() if not address.blank?
-    emails << e if not emails.include?(e)
+    e = self.emails.where(address: Email.canonicalize(address)).first_or_initialize() if not address.blank?
+    self.emails << e if not emails.include?(e)
     e
   end
     
-  def phone=(number)
-    if number.is_a?(Phone)
-      phones << number unless phones.include?(number)
-      return
-    end
-
-    if not number.blank?
-      p = phones.first rescue nil
-      p ||= Phone.create(:label => Label.get("Work"))
-      phones << p unless phones.include?(p)
-      p.number = number
-      p.save
-    end
-  end
-
   def phone
     p = self.phones.find_by(label: Label.get("Work"))
     p ||= self.phones.first
     p
+  end
+
+  def phone=(number)
+    if number.is_a?(Phone)
+      self.phones << number unless self.phones.include?(number)
+      return
+    end
+
+    if not number.blank?
+      p = self.phones.first rescue nil
+      p ||= Phone.create(phoneable_type: self.class.name, label: Label.get("Work"))
+      self.phones << p unless self.phones.include?(p)
+      p.number = number
+      p.save
+    end
   end
 
   def self.is_name_prefix?(text)
@@ -129,7 +129,7 @@ class Person < ApplicationRecord
       end
     end
 
-    components << fname if fname.present?
+    components << self.fname if self.fname.present?
 
     if minitial.present?
       if minitial.length < 2
@@ -139,8 +139,8 @@ class Person < ApplicationRecord
       end
     end
 
-    components << lname if lname.present?
-    components << ", #{suffix}" if suffix.present?
+    components << self.lname if self.lname.present?
+    components << ", #{suffix}" if self.suffix.present?
     components.join(" ").strip.gsub(/ ,/, ",")
   end
 
@@ -168,19 +168,19 @@ class Person < ApplicationRecord
   end
 
   def address=(new_address)
+    candidate = nil
     if new_address.is_a?(Address)
-      self.addresses << new_address unless self.addresses.include?(new_address)
+      candidate = new_address
     elsif %w(Integer Fixnum Bignum).include?(new_address.class.to_s)
-      a = Address.find(new_address)
-      self.addresses << a unless self.addresses.include?(a)
+      candidate = Address.find(new_address)
     else
       parsed = Address.parse(new_address)
-      current = addresses.where(line1: parsed.line1).first
-      current ||= Address.new
-      parsed.attributes.each {|key, val| current.send((key + "=").to_sym, val) unless val == nil }
-      current.save
-      self.addresses << current unless self.addresses.include?(current)
+      candidate = self.addresses.where(line1: parsed.line1).first
+      candidate ||= Address.new
+      parsed.attributes.each {|key, val| candidate.send((key + "=").to_sym, val) unless val == nil }
+      candidate.save
     end
+    self.addresses << candidate unless self.addresses.include?(candidate)
     self.save
   end
 
@@ -198,39 +198,41 @@ class Person < ApplicationRecord
   end
 
   def self.find_by_email(addr)
-    e = Email.find_by_address(addr)
+    e = Email.where(address: Email.canonicalize(addr), emailable_type: self.name)
     e.person if e
   end
 
   def self.find_by_phone_number(number)
-    p = Phone.find_by_number(number)
+    p = Phone.where(number: Phone.canonicalize(number), phoneable_type: self.name)
     p.person if p
   end
 
   def self.find_by_address(string)
     a = Address.find_by_address(string)
-    a.person if a
+    a.person if a and a.addressable_type == self.name
   end
 
   def add_phone(number, label="Home")
     if self != self.class.find_by_phone_number(number)
-      p = Phone.create(number: number, label: Label.get(label))
+      p = Phone.create(number: number, phoneable_type: self.class.name, label: Label.get(label))
       phones << p
     end
-    p = Phone.find_by_number(number)
+    p = Phone.where(number: Phone.canonicalize(number), phoneable_type: self.class.name)
   end
 
   def add_email(address, label="Home")
+    address = Email.canonicalize(address)
     if self != self.class.find_by_email(address)
-      e = Email.create(address: address, label: Label.get(label))
+      e = Email.create(address: address, emailable_type: self.class.name, label: Label.get(label))
       emails << e
     end
-    e = Email.find_by(address: address)
+    e = Email.where(address:address, emailable_type: self.class.name)
   end
 
   def add_address(address_line, label="Home")
     if self != self.class.find_by_address(address_line)
-      a = Address.parse(address_line); a.save
+      a = Address.parse(address_line);
+      a.addressable_type = self.class.name;
       a.label = Label.get(label)
       a.save
       addresses << a

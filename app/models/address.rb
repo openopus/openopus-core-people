@@ -1,6 +1,6 @@
 class Address < ApplicationRecord
-  belongs_to :label
-  belongs_to :addressable
+  belongs_to :label, optional: true
+  belongs_to :addressable, polymorphic: true
 
   accepts_nested_attributes_for :label
   
@@ -53,11 +53,12 @@ class Address < ApplicationRecord
     return unless string != line1
     return if (string == oneline() || string == oneline({full: true}))
 
+    have_geocoder = defined?(Geocoder)
     r = Geocoder.search(string) rescue nil
     @already_geocoded = true
-
+    
     if not r or r.length == 0
-      self.errors[:address] = "No locations found."
+      self.errors.add(:address, :did_not_geocode, message: "No locations found") if have_geocoder
       self.line1 = string
     else
       res = r[0]
@@ -78,10 +79,7 @@ class Address < ApplicationRecord
         self.country = res.country_code.to_s.upcase
     end
 
-    if r.length > 1 
-      self.errors.messages[:address] = "Too many matches." if self.errors.respond_to?(:messages) 
-      self.errors[:address] = "Too many matches." if not self.errors.respond_to?(:messages)
-    end
+    self.errors.add(:address, :too_many_matches, message: "Too many matches") if have_geocoder && r && r.length > 1 
     self
   end
 
@@ -103,7 +101,7 @@ class Address < ApplicationRecord
     r = Geocoder.search(self.postal) rescue nil
     if not r or r.length == 0
       return
-      self.errors[:postal] = "Couldn't locate postal code"
+      self.errors.add(:postal, :cannot_locate_postal_code, message: "Couldn't locate postal code")
     else
       res = r[0]
       self.update_lat_lon(res)
