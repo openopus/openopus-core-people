@@ -6,5 +6,3 @@ bfox = User.lookup("bfox@opuslogica.com") ||
                                         phone: "805.555.8642" },
                    organization: opus,
                    credentials_attributes: [{ password: "idtmp2tv" }])
-end
-
