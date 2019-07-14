@@ -1,8 +1,6 @@
 class User < ApplicationRecord
   belongs_to :person
   accepts_nested_attributes_for :person
-  has_many :credentials, as: :credentialed, dependent: :destroy
-  accepts_nested_attributes_for :credentials
   has_and_belongs_to_many :organizations
 
   delegate :name, :name=, to: :person

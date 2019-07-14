@@ -4,5 +4,4 @@ bfox = User.lookup("bfox@opuslogica.com") ||
        User.create(person_attributes: { email: "bfox@opuslogica.com", name: "Brian Jhan Fox",
                                         address: "901 Olive St., Santa Barbara, CA, 93101",
                                         phone: "805.555.8642" },
-                   organization: opus,
-                   credentials_attributes: [{ password: "idtmp2tv" }])
+                   organization: opus)
