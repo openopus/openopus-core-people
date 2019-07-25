@@ -17,7 +17,7 @@ Install the gem, run migrations.  This will create human structures, from Organi
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'openopus-core-people', git: "https://github.com/opuslogica/openopus-core-people"
+gem 'openopus-core-people', git: "https://github.com/openopus/openopus-core-people"
 ```
 
 And then execute:

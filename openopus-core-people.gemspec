@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.version     = Openopus::Core::People::VERSION
   spec.authors     = ["Brian J. Fox"]
   spec.email       = ["bfox@opuslogica.com"]
-  spec.homepage    = "https://github.com/opuslogica/openopus-core-people"
+  spec.homepage    = "https://github.com/openopus/openopus-core-people"
   spec.summary     = "Model the real world of people in your application, making user interaction robust."
   spec.description = "A person can have many email addresses, but this is not usually represented in applications.  openopus/core/people creates the database structure, relations, and convenience functions for your application so you don't have to.  Just connect your end user model, and away you go."
   spec.license     = "MIT"
