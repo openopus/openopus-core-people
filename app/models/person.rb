@@ -240,5 +240,9 @@ class Person < ApplicationRecord
     a = Address.find_by_address(address_line)
   end
 
-
+  def as_api_json(options={})
+    candidate = self.as_json(options)
+    candidate[:emails] = self.emails.collect {|e| e.address}
+    candidate
+  end
 end

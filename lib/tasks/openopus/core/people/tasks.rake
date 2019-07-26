@@ -12,7 +12,8 @@ namespace :openopus do
           a.postal = l[:postcode].to_s.upcase; a.country = "US"
           name = jp[:name]
           p = Person.create(name: "#{name[:title]} #{name[:first]} #{name[:last]}".titleize,
-                            phone: jp[:phone], address: a, birthdate: jp[:dob][:date], nationality: jp[:nat])
+                            phone: jp[:phone], address: a, email: jp[:email],
+                            birthdate: jp[:dob][:date], nationality: jp[:nat])
           p.picture = jp[:picture][:medium] if p.respond_to?("picture=".to_sym)
           p.photo = jp[:picture][:medium] if p.respond_to?("photo=".to_sym)
           p
@@ -24,6 +25,16 @@ namespace :openopus do
           person = generate_person
           puts("openopus made: #{person.name} of #{person.address.oneline}")
         end
+      end
+
+      desc "Generate users from the people in your database that aren't associated with any user. Only for testing!"
+      task :generate_users, [:count] => :environment do |task, args|
+        def generate_user(person)
+          User.create(person_id: person.id, status: "generated") if not person.user
+        end
+
+        Rake::Task["openopus:core:people:generate_people"].invoke(args) if not args[:count].blank?
+        Person.all.each { |person| generate_user(person) }
       end
     end
   end
