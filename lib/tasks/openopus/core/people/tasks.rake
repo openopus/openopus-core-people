@@ -30,7 +30,10 @@ namespace :openopus do
       desc "Generate users from the people in your database that aren't associated with any user. Only for testing!"
       task :generate_users, [:count] => :environment do |task, args|
         def generate_user(person)
-          User.create(person_id: person.id, status: "generated") if not person.user
+          user = User.create(person_id: person.id, status: "generated") if not person.user and not person.email.blank?
+          if user and user.respond_to?(:credentials) and user.credentials.blank?
+            user.credentials.create(password: "password")
+          end
         end
 
         Rake::Task["openopus:core:people:generate_people"].invoke(args[:count]) if not args[:count].blank?

@@ -242,7 +242,8 @@ class Person < ApplicationRecord
 
   def as_api_json(options={})
     candidate = self.as_json(options)
-    candidate[:emails] = self.emails.collect {|e| e.address}
+    candidate[:emails] = self.emails.collect {|e| { label: e.label, address: e.address }}
+    candidate[:addresses] = self.addresses.collect {|a| { label: a.label, address: a.address }}
     candidate
   end
 end
