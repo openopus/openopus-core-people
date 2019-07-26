@@ -231,8 +231,8 @@ class Person < ApplicationRecord
 
   def add_address(address_line, label="Home")
     if self != self.class.find_by_address(address_line)
-      a = Address.parse(address_line);
-      a.addressable_type = self.class.name;
+      a = Address.parse(address_line)
+      a.addressable_type = self.class.name
       a.label = Label.get(label)
       a.save
       addresses << a
