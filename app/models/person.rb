@@ -122,7 +122,7 @@ class Person < ApplicationRecord
     components = []
 
     if prefix.present?
-      if not prefix.include?(".")
+      if not prefix.include?(".") and not prefix =~ /^miss$/i
         components << "#{prefix}."
       else
         components << prefix
