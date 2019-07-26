@@ -33,7 +33,7 @@ namespace :openopus do
           User.create(person_id: person.id, status: "generated") if not person.user
         end
 
-        Rake::Task["openopus:core:people:generate_people"].invoke(args) if not args[:count].blank?
+        Rake::Task["openopus:core:people:generate_people"].invoke(args[:count]) if not args[:count].blank?
         Person.all.each { |person| generate_user(person) }
       end
     end
