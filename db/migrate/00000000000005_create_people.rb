@@ -8,6 +8,7 @@ class CreatePeople < ActiveRecord::Migration[5.2]
       t.string :suffix, limit: 10
       t.string :birthdate
       t.string :nationality
+      t.string :language, limit: 10
 
       t.timestamps
     end
