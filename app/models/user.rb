@@ -3,10 +3,12 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :person
   has_and_belongs_to_many :organizations
 
-  NAME_DELEGATES  = [:name,:fname,:lname,:minitial,:prefix,:suffix,:emails,:phones,:addresses,:birthdate,:age] +
-                    [:name=,:fname=,:lname=,:minitial=,:prefix=,:suffix=,:emails=,:phones=,:addresses=,:birthdate=,:age=]
+  PERSON_SETTERS = [:name=,:fname=,:lname=,:minitial=,:prefix=,:suffix=,:emails=,:phones=,:addresses=,:birthdate=,:age=,:nationality=]
+  PERSON_GETTERS = [:name,:name=,:fname,:lname,:minitial,:prefix,:suffix,:emails,:phones,:addresses,:birthdate,:age,:nationality]
+  PERSON_DELEGATES  = PERSON_SETTERS + PERSON_GETTERS
+  PERSON_STRINGS = PERSON_DELEGATES + PERSON_DELEGATES.collect {|x| x.to_s}
 
-  delegate(*NAME_DELEGATES, to: :person)
+  delegate(*PERSON_DELEGATES, to: :person)
   
   def self.lookup(item)
     person = Person.lookup(item)
@@ -22,7 +24,7 @@ class User < ApplicationRecord
   end
  
   def assign_attributes(attr)
-    if not attr.keys.to_set.intersection(NAME_DELEGATES).empty?
+    if not attr.keys.to_set.intersection(PERSON_STRINGS).empty?
       self.person = Person.new
     end
     super(attr)
