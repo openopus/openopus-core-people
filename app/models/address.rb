@@ -1,5 +1,5 @@
 class Address < ApplicationRecord
-  belongs_to :label, optional: true
+  include Labelize
   belongs_to :addressable, polymorphic: true
 
   accepts_nested_attributes_for :label

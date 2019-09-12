@@ -1,5 +1,5 @@
 class Email < ApplicationRecord
-  belongs_to :label, optional: true
+  include Labelize
   belongs_to :emailable, polymorphic: true
   accepts_nested_attributes_for :label
   before_create :default_label

@@ -28,5 +28,4 @@ class User < ApplicationRecord
     end
     super(attr)
   end
-
 end

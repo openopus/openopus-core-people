@@ -1,5 +1,5 @@
 class Phone < ApplicationRecord
-  belongs_to :label, optional: true
+  include Labelize
   belongs_to :phoneable, polymorphic: true
   before_validation :canonicalize
 
@@ -23,4 +23,18 @@ class Phone < ApplicationRecord
     self.number = self.class.canonicalize(self.number) if self.number
   end
 
+  def label
+    db_label = super
+    if not db_label
+      self.label = "Work"
+      db_label = super
+    end
+
+    db_label.value
+  end
+
+  def label=(name)
+    super(Label.get(name))
+    self.label
+  end
 end
