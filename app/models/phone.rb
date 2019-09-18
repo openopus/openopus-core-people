@@ -1,6 +1,6 @@
 class Phone < ApplicationRecord
   include Labelize
-  belongs_to :phoneable, polymorphic: true
+  belongs_to :phoneable, polymorphic: true, optional: true
   before_validation :canonicalize
 
   def self.canonicalize(digits_and_stuff)
