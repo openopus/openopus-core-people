@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", "~> 5.2.3"
   spec.add_dependency "bcrypt", "~> 3.1.13"
+  spec.add_dependency "phony_rails", ">0.14"
 end

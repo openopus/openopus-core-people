@@ -1,3 +1,5 @@
+require "phony_rails"
+
 class Phone < ApplicationRecord
   include Labelize
   belongs_to :phoneable, polymorphic: true, optional: true
@@ -8,11 +10,15 @@ class Phone < ApplicationRecord
     canonical.gsub!(" ", "") #remove extra spaces
     if canonical
       canonical = canonical[2..100].strip if canonical.starts_with?("+1")
-      if canonical[0] != "+"
-        digits = digits_and_stuff.gsub(/[^0-9]/, "")
-        digits = digits[1..-1] if digits[0] == '1'
-        digits = "805" + digits if digits.length == 7
-        canonical = "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..10]}"
+      if self.const_defined?("PhonyRails")
+        canonical = PhonyRails.normalize_number(digits_and_stuff, default_country_code: "US").phony_formatted(format: :international)
+      else
+        if canonical[0] != "+"
+          digits = digits_and_stuff.gsub(/[^0-9]/, "")
+          digits = digits[1..-1] if digits[0] == '1'
+          digits = "805" + digits if digits.length == 7
+          canonical = "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..10]}"
+        end
       end
     end
     canonical
