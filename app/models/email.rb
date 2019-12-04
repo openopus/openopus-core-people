@@ -3,9 +3,11 @@ class Email < ApplicationRecord
   belongs_to :emailable, polymorphic: true, optional: true
   accepts_nested_attributes_for :label
   before_create :default_label
+  before_save :canonicalize
 
   def self.canonicalize(addr)
-    addr.strip.downcase if not addr.blank?
+    candidate = addr.strip.downcase if not addr.blank?
+    candidate ||= addr
   end
 
   def canonicalize
