@@ -5,6 +5,8 @@ class Email < ApplicationRecord
   before_create :default_label
   before_save :canonicalize
 
+  validates_format_of :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i, :on => :create
+
   def self.canonicalize(addr)
     candidate = addr.strip.downcase if not addr.blank?
     candidate ||= addr
