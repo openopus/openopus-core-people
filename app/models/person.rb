@@ -136,6 +136,14 @@ class Person < ApplicationRecord
     res
   end
   
+  def initials
+    res = ""
+    res += fname[0] if fname
+    res += minitial[0] if minitial
+    res += lname[0] if lname
+    res.upcase
+  end
+  
   def name
     components = []
 
