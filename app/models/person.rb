@@ -26,7 +26,7 @@ class Person < ApplicationRecord
     end
 
     if not person
-      addr = Email.where(emailable_type: self.name.to_s, address: Email.canonicalize(name.downcase)).first
+      addr = Email.where(emailable_type: name.to_s, address: Email.canonicalize(name.downcase)).first
       person = addr.person.first if addr
     end
 
