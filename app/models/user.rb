@@ -11,7 +11,8 @@ class User < ApplicationRecord
   
   def self.lookup(item)
     person = Person.lookup(item)
-    (person.send self.name.downcase.to_sym) if person
+    this_class = self.name.downcase.to_sym
+    (person.send this_class) if person and person.respond_to?(this_class)
   end
 
   def organization=(org)

@@ -13,21 +13,28 @@ class Person < ApplicationRecord
   def self.lookup(name)
     person   = self.find_by(self.name_components(name))
     person ||= self.includes(:nicknames).joins(:nicknames).find_by("nicknames.nickname" => name)
+
+    # Maybe we're looking up by phone number?
     if not person
-      people = self.all.collect do |p|
-        [p.id, [(p.fname[0] || ""), (p.minitial[0] || ""), (p.lname[0] || "")].join("").upcase]
-      end
+      phone = Phone.where(number: Phone.canonicalize(name)).first rescue nil
+      person = phone.person if phone
+    end
+
+    if not person
+      email = Email.where(emailable_type: name.to_s, address: Email.canonicalize(name.downcase)).first
+      person = email.person.first if email
+    end
+
+    if not person
+      # Try hard to find a person by their initials, even if there wasn't a nickname for them.
+      people = self.all.collect {|p| [p.id, p.initials]}
+
       people.each do |parry|
         if parry[1] == name.upcase
           person = self.find(parry[0])
           break
         end
       end
-    end
-
-    if not person
-      addr = Email.where(emailable_type: name.to_s, address: Email.canonicalize(name.downcase)).first
-      person = addr.person.first if addr
     end
 
     person
@@ -82,7 +89,7 @@ class Person < ApplicationRecord
     result = possibles.include?(text.gsub(/[.]*/, "").downcase) if text.present?
   end
 
-  def self.name_components(name)
+  def self.name_components(name, transformer=nil)
     res = {}
     component = ""
     components = name.gsub(/,/, " ").gsub(/  /, " ").split(" ") rescue [name]
@@ -92,32 +99,43 @@ class Person < ApplicationRecord
     # What kind of thing is this?
     if is_name_prefix?(component)
       res[:prefix] = component
+      res[:prefix] = res[:prefix].send(transformer) if res[:prefix] && transformer
       res[:fname] = components.shift
     else
       res[:fname] = component
     end
 
+    res[:fname] = res[:fname].send(transformer) if res[:fname] && transformer
+
     # Next up, middle initial or last name.
     # If only one word remains, that's the last name
     if components.length == 1
       res[:lname] = components.shift
+      res[:lname] = res[:lname].send(transformer) if res[:lname] && transformer
     elsif components.length > 0
       # At least 2 words remain. We might have middle names, prefixes, suffixes, etc.
       components.reverse!
       component = components.shift
+
       if is_name_suffix?(component)
         res[:suffix] = component
+        res[:suffix] = res[:suffix].send(transformer) if res[:suffix] && transformer
         res[:lname] = components.shift
       else
         res[:lname] = component
       end
+
+      res[:lname] = res[:lname].send(transformer) if res[:lname] && transformer
+
       res[:minitial] = components.shift
+      res[:minitial] = res[:minitial].send(transformer) if res[:minitial] && transformer
+
     end
 
     res[:minitial] = res[:minitial].gsub(/[.]/, "") if res[:minitial].present?
     res
   end
-
+  
   def name
     components = []
 
