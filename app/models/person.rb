@@ -17,12 +17,12 @@ class Person < ApplicationRecord
     # Maybe we're looking up by phone number?
     if not person
       phone = Phone.where(number: Phone.canonicalize(name)).first rescue nil
-      person = phone.person if phone
+      person = phone.phoneable if phone
     end
 
     if not person
       email = Email.where(emailable_type: name.to_s, address: Email.canonicalize(name.downcase)).first
-      person = email.person.first if email
+      person = email.emailable if email
     end
 
     if not person
