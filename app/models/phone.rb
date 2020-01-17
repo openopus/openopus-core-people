@@ -6,8 +6,7 @@ class Phone < ApplicationRecord
   before_validation :canonicalize
 
   def self.canonicalize(digits_and_stuff)
-    canonical = digits_and_stuff
-    canonical.gsub!(" ", "") #remove extra spaces
+    canonical = digits_and_stuff.gsub(" ", "")
     if canonical
       canonical = canonical[2..100].strip if canonical.starts_with?("+1")
       if self.const_defined?("PhonyRails")
