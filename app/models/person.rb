@@ -11,6 +11,7 @@ class Person < ApplicationRecord
   accepts_nested_attributes_for :emails
 
   def self.lookup(name)
+    return nil if not name
     person   = self.find_by(self.name_components(name))
     person ||= self.includes(:nicknames).joins(:nicknames).find_by("nicknames.nickname" => name)
 
