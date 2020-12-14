@@ -23,7 +23,8 @@ gem 'openopus-core-people', git: "https://github.com/openopus/openopus-core-peop
 And then execute:
 ```bash
 $ bundle install
-$ bundle exec rake db:migrate
+$ ./bin/rake openopus_core_people_engine:install:migrations
+$ ./bin/rake db:migrate
 ```
 
 Or install it yourself as:
