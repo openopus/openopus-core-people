@@ -92,7 +92,7 @@ class Address < ApplicationRecord
     for_user = options.delete(:for_user)
     res = super(options)
     res[:address] = oneline
-    res[:label] = self.label.value if self.label
+    res[:label] = self.label
     res
   end
 
