@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  spec.add_runtime_dependency 'rails', '~> 5.2', '> 5.2.3'
-  spec.add_runtime_dependency 'phony_rails', '~> 0.14', '> 0.14'
+  spec.add_runtime_dependency 'rails', '> 5.2.3'
+  spec.add_runtime_dependency 'phony_rails', '> 0.14'
   spec.add_runtime_dependency "bcrypt", "~> 3.1.13"
 end
