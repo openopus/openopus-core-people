@@ -55,7 +55,7 @@ class Person < ApplicationRecord
 
   def email=(address)
     e = self.emails.where(address: Email.canonicalize(address)).first_or_initialize() if not address.blank?
-    self.emails << e if not emails.include?(e)
+    self.emails << e if e and not emails.include?(e)
     e
   end
     
