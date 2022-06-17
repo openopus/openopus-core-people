@@ -24,9 +24,7 @@ class User < ApplicationRecord
   end
  
   def assign_attributes(attr)
-    if not attr.keys.to_set.intersection(PERSON_SET).empty?
-      self.person = Person.new
-    end
+    self.person ||= Person.new if not attr.keys.to_set.intersection(PERSON_SET).empty?
     super(attr)
   end
 end
